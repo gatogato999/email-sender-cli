@@ -1,8 +1,11 @@
 package main
 
 import (
-	"fmt"
 	"log"
+	"net/smtp"
+	"os"
+
+	"github.com/joho/godotenv"
 )
 
 type Email struct {
@@ -14,6 +17,13 @@ type Email struct {
 }
 
 func main() {
+	log.SetFlags(log.Lshortfile)
+
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	db, err := NewDB()
 	if err != nil {
 		log.Fatal(err)
@@ -22,31 +32,21 @@ func main() {
 	}
 	defer db.Close()
 
-	rows, err := db.Query(`select * from outbox `)
+	emailServer := os.Getenv("SMPTSERVER")
+	emailServerPort := os.Getenv("EMAILPORT")
+	senderEmail := os.Getenv("EMAILUSERNAME")
+	senderPassword := os.Getenv("EMAILPASSWORD")
+
+	auth := smtp.PlainAuth("", senderEmail, senderPassword, emailServer)
+
+	err = smtp.SendMail(
+		emailServer+":"+emailServerPort,
+		auth,
+		senderEmail,
+		[]string{"mhmdmrhsn13@gmail.com"},
+		[]byte("hi"),
+	)
 	if err != nil {
-		log.Println(err)
-	}
-
-	defer rows.Close()
-
-	var allMsg []Email
-
-	for rows.Next() {
-		var msg Email
-		if err := rows.Scan(&msg.ID, &msg.Address, &msg.Subject, &msg.Body, &msg.Sent); err != nil {
-			log.Print(err)
-		}
-		allMsg = append(allMsg, msg)
-		// NOTE: sanity check
-		fmt.Printf(
-			"sent?: %d\taddr : %s\nsub: %s\t\nbody: %s\n---------\n",
-			msg.Sent,
-			msg.Address,
-			msg.Subject,
-			msg.Body,
-		)
-	}
-	if err = rows.Err(); err != nil {
-		log.Print(err)
+		log.Fatal(err)
 	}
 }
