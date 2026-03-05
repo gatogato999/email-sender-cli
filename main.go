@@ -2,8 +2,6 @@ package main
 
 import (
 	"log"
-	"net/smtp"
-	"os"
 
 	"github.com/joho/godotenv"
 )
@@ -32,21 +30,14 @@ func main() {
 	}
 	defer db.Close()
 
-	emailServer := os.Getenv("SMPTSERVER")
-	emailServerPort := os.Getenv("EMAILPORT")
-	senderEmail := os.Getenv("EMAILUSERNAME")
-	senderPassword := os.Getenv("EMAILPASSWORD")
+	unSentMsgs, msgFetchError := GetAllMsg(db)
+	if msgFetchError != nil {
+		log.Fatal(msgFetchError)
+	}
 
-	auth := smtp.PlainAuth("", senderEmail, senderPassword, emailServer)
-
-	err = smtp.SendMail(
-		emailServer+":"+emailServerPort,
-		auth,
-		senderEmail,
-		[]string{"mhmdmrhsn13@gmail.com"},
-		[]byte("hi"),
-	)
-	if err != nil {
-		log.Fatal(err)
+	for _, value := range unSentMsgs {
+		if sendError := SendEmail(value.Address, value.Subject, value.Body); sendError != nil {
+			log.Printf("can't send msg %d : %v", value.ID, sendError)
+		}
 	}
 }

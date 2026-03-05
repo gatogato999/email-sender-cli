@@ -3,6 +3,7 @@ package main
 import (
 	"database/sql"
 	"fmt"
+	"log"
 	"os"
 
 	_ "github.com/go-sql-driver/mysql"
@@ -28,4 +29,35 @@ func NewDB() (*sql.DB, error) {
 	}
 
 	return db, nil
+}
+
+func GetAllMsg(db *sql.DB) ([]Email, error) {
+	rows, queryErr := db.Query(`select * from outbox where sent = 0 `)
+	if queryErr != nil {
+		log.Println(queryErr)
+		return []Email{}, queryErr
+	}
+
+	defer rows.Close()
+
+	var allMsg []Email
+
+	for rows.Next() {
+		var msg Email
+		if scanErr := rows.Scan(
+			&msg.ID,
+			&msg.Address,
+			&msg.Subject,
+			&msg.Body,
+			&msg.Sent,
+		); scanErr != nil {
+			if scanErr == rows.Err() {
+				log.Printf("error on msg %d : %v", msg.ID, scanErr)
+			} else {
+				return []Email{}, scanErr
+			}
+		}
+		allMsg = append(allMsg, msg)
+	}
+	return allMsg, nil
 }

@@ -4,8 +4,9 @@
 
 - [x] Uses .env file for configurations
 - [x] read messages from table `outbox`
-- [ ] Connect to email service (provided in the .env)
-- [ ] send messages with attribute `false` ( column `sent`)
+- [x] Connect to email service (provided in the .env)
+- [x] send messages with attribute `0` ( column `sent`)
+- [ ] modifiy sent messages state in the database
 
 ## Implementation
 
@@ -21,6 +22,11 @@ CREATE TABLE outbox (
 );
 insert into outbox (address, subject, body, sent) values ('hbims0@dailymotion.com', 'bibendum imperdiet', 'Cras mi pede, malesuada in, imperdiet et, commodo vulputate, justo.', 1);
 ```
+
+- Least SMTP commands (tell a client or server what to do and how to handle any accompanying data.)
+  - `FROM`
+  - `TO`
+  - `Subject`
 
 ## Modules Needed
 
