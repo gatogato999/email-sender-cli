@@ -61,3 +61,8 @@ func GetAllMsg(db *sql.DB) ([]Email, error) {
 	}
 	return allMsg, nil
 }
+
+func MarkAsSent(db *sql.DB, id int) error {
+	_, err := db.Exec(`UPDATE outbox SET sent = 1 WHERE id = ?`, id)
+	return err
+}

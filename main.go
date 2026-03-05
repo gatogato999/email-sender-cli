@@ -35,9 +35,5 @@ func main() {
 		log.Fatal(msgFetchError)
 	}
 
-	for _, value := range unSentMsgs {
-		if sendError := SendEmail(value.Address, value.Subject, value.Body); sendError != nil {
-			log.Printf("can't send msg %d : %v", value.ID, sendError)
-		}
-	}
+	ConccurtSend(db, unSentMsgs)
 }

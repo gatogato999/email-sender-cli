@@ -3,10 +3,12 @@
 ## Requirements
 
 - [x] Uses .env file for configurations
-- [x] read messages from table `outbox`
+- [x] Read messages from table `outbox`
 - [x] Connect to email service (provided in the .env)
-- [x] send messages with attribute `0` ( column `sent`)
-- [ ] modifiy sent messages state in the database
+- [x] Send messages with attribute `0` ( column `sent`)
+- [x] Modifiy sent messages state in the database
+- [x] Send messages concurrently
+- [ ] Write test for race conditions
 
 ## Implementation
 
