@@ -11,6 +11,14 @@ import (
 	"time"
 )
 
+type Email struct {
+	ID      int
+	Address string
+	Subject string
+	Body    string
+	Sent    int
+}
+
 func SendEmail(recept, subj, body string, cntx context.Context) error {
 	emailServer := os.Getenv("SMPTSERVER")
 	emailServerPort := os.Getenv("EMAILPORT")
@@ -33,7 +41,7 @@ func SendEmail(recept, subj, body string, cntx context.Context) error {
 	return nil
 }
 
-func ConccurtSend(db *sql.DB, unSentMsgs []Email) {
+func ConcurrentSend(db *sql.DB, unSentMsgs []Email) {
 	var waitter sync.WaitGroup
 	results := make(chan string, len(unSentMsgs))
 
@@ -62,13 +70,11 @@ func ConccurtSend(db *sql.DB, unSentMsgs []Email) {
 		}(value)
 	}
 
-	// Wait and close results
 	go func() {
 		waitter.Wait()
 		close(results)
 	}()
 
-	// 5. Consume messages
 	for msg := range results {
 		fmt.Println(msg)
 	}

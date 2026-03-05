@@ -6,14 +6,6 @@ import (
 	"github.com/joho/godotenv"
 )
 
-type Email struct {
-	ID      int
-	Address string
-	Subject string
-	Body    string
-	Sent    int
-}
-
 func main() {
 	log.SetFlags(log.Lshortfile)
 
@@ -35,5 +27,5 @@ func main() {
 		log.Fatal(msgFetchError)
 	}
 
-	ConccurtSend(db, unSentMsgs)
+	ConcurrentSend(db, unSentMsgs)
 }
